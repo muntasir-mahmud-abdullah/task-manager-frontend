@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import LogoutButton from "./components/LogoutButton";
+import Dashboard from "./pages/Dashboard";
 
 const App = () => {
   return (

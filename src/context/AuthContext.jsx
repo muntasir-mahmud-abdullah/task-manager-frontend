@@ -1,5 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import axios from "axios";
 import { auth } from "../firebaseConfig";
 
@@ -7,7 +12,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  
+
   // Google Login
   const loginWithGoogle = async () => {
     try {
