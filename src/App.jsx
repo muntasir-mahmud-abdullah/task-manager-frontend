@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Login from "./components/Login.jsx";  // Updated import
-import Logout from "./components/Logout.jsx";  // Updated import
+import Login from "./components/Login";
+import Logout from "./components/Logout";
 
 const App = () => {
   const [user, setUser] = useState(null);
-
+  console.log(user)
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
