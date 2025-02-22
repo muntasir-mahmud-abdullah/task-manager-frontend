@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { DndContext, closestCenter } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 import TaskItem from "../components/TaskItem";
 import { useAuth } from "../context/AuthContext";
 import DroppableColumn from "../components/DroppableColumn";
@@ -16,18 +20,20 @@ const Dashboard = () => {
   const [columns, setColumns] = useState({
     "To-Do": [],
     "In Progress": [],
-    "Done": [],
+    Done: [],
   });
 
-  // Fetch tasks from backend
+  // Fetch tasks from the backend and group them by category
   const fetchTasks = async () => {
     if (!user?.uid) return;
     try {
-      const response = await axios.get(`http://localhost:5000/tasks/${user.uid}`);
+      const response = await axios.get(
+        `http://localhost:5000/tasks/${user.uid}`
+      );
       const grouped = {
         "To-Do": [],
         "In Progress": [],
-        "Done": [],
+        Done: [],
       };
       response.data.forEach((task) => {
         if (grouped[task.category]) {
@@ -41,7 +47,12 @@ const Dashboard = () => {
     }
   };
 
-  // Handle real-time task updates
+  // Fetch tasks when the user logs in
+  useEffect(() => {
+    fetchTasks();
+  }, [user]);
+
+  // Set up Socket.io listeners for real-time updates
   useEffect(() => {
     if (!user) return;
 
@@ -49,7 +60,9 @@ const Dashboard = () => {
       if (newTask.uid === user.uid) {
         setColumns((prev) => ({
           ...prev,
-          [newTask.category]: [...prev[newTask.category], newTask].sort((a, b) => a.order - b.order),
+          [newTask.category]: [...prev[newTask.category], newTask].sort(
+            (a, b) => a.order - b.order
+          ),
         }));
       }
     });
@@ -70,7 +83,9 @@ const Dashboard = () => {
       setColumns((prev) => {
         const updatedColumns = { ...prev };
         Object.keys(updatedColumns).forEach((category) => {
-          updatedColumns[category] = updatedColumns[category].filter((task) => task._id !== id);
+          updatedColumns[category] = updatedColumns[category].filter(
+            (task) => task._id !== id
+          );
         });
         return updatedColumns;
       });
@@ -83,14 +98,11 @@ const Dashboard = () => {
     };
   }, [user]);
 
-  // Fetch tasks when user logs in
-  useEffect(() => {
-    fetchTasks();
-  }, [user]);
-
-  // Helper to find the container (column) where a task is located
+  // Helper to find which column contains a given task ID
   const findContainer = (id) => {
-    return Object.keys(columns).find((key) => columns[key].some((task) => task._id === id));
+    return Object.keys(columns).find((key) =>
+      columns[key].some((task) => task._id === id)
+    );
   };
 
   // Handle drag and drop events
@@ -99,32 +111,41 @@ const Dashboard = () => {
     if (!over) return;
 
     const activeContainer = findContainer(active.id);
-    const overContainer = columns.hasOwnProperty(over.id) ? over.id : findContainer(over.id);
+    const overContainer = columns.hasOwnProperty(over.id)
+      ? over.id
+      : findContainer(over.id);
 
     if (!activeContainer || !overContainer) {
-      console.error("Container not found for active or over item", { activeContainer, overContainer });
+      console.error("Container not found for active or over item", {
+        activeContainer,
+        overContainer,
+      });
       return;
     }
 
     if (activeContainer === overContainer) {
       // Reorder within the same column
       setColumns((prev) => {
-        const oldIndex = prev[activeContainer].findIndex((task) => task._id === active.id);
-        const newIndex = prev[activeContainer].findIndex((task) => task._id === over.id);
+        const oldIndex = prev[activeContainer].findIndex(
+          (task) => task._id === active.id
+        );
+        const newIndex = prev[activeContainer].findIndex(
+          (task) => task._id === over.id
+        );
         const newItems = arrayMove(prev[activeContainer], oldIndex, newIndex);
         return { ...prev, [activeContainer]: newItems };
       });
     } else {
-      // Move task between different columns
+      // Move task between columns
       setColumns((prev) => {
         const sourceItems = [...prev[activeContainer]];
         const destinationItems = [...prev[overContainer]];
-        const activeIndex = sourceItems.findIndex((task) => task._id === active.id);
+        const activeIndex = sourceItems.findIndex(
+          (task) => task._id === active.id
+        );
         const [movedTask] = sourceItems.splice(activeIndex, 1);
         movedTask.category = overContainer;
-
         destinationItems.unshift(movedTask);
-
         return {
           ...prev,
           [activeContainer]: sourceItems,
@@ -132,14 +153,16 @@ const Dashboard = () => {
         };
       });
 
-      // Update category in backend
+      // Update task category in the backend
       axios
-        .put(`http://localhost:5000/tasks/${active.id}`, { category: overContainer })
+        .put(`http://localhost:5000/tasks/${active.id}`, {
+          category: overContainer,
+        })
         .catch((err) => console.error("Error updating task category:", err));
     }
   };
 
-  // Create a new task
+  // Create a new task via SweetAlert2
   const createTask = async () => {
     try {
       const { value: formValues } = await Swal.fire({
@@ -155,7 +178,6 @@ const Dashboard = () => {
           };
         },
       });
-
       if (formValues) {
         await axios.post("http://localhost:5000/tasks", {
           ...formValues,
@@ -171,6 +193,12 @@ const Dashboard = () => {
     }
   };
 
+  // Edit an existing task via SweetAlert2
+
+
+  // Delete a task with confirmation via SweetAlert2
+
+
   return (
     <div className="flex flex-col p-4 space-y-4">
       <h1 className="text-3xl font-bold text-center">Task Manager Dashboard</h1>
@@ -181,10 +209,19 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row gap-4">
           {Object.keys(columns).map((category) => (
             <DroppableColumn key={category} id={category}>
-              <h2 className="text-xl text-green-400 font-bold mb-2">{category}</h2>
-              <SortableContext items={columns[category].map((task) => task._id)} strategy={verticalListSortingStrategy}>
+              <h2 className="text-xl text-green-400 font-bold mb-2">
+                {category}
+              </h2>
+              <SortableContext
+                items={columns[category].map((task) => task._id)}
+                strategy={verticalListSortingStrategy}
+              >
                 {columns[category].map((task) => (
-                  <TaskItem key={task._id} task={task} />
+                  <TaskItem
+                    key={task._id}
+                    task={task}
+                    fetchTasks={fetchTasks}
+                  />
                 ))}
               </SortableContext>
             </DroppableColumn>
