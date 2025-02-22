@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors  } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -203,13 +203,17 @@ const Dashboard = () => {
 
   // Delete a task with confirmation via SweetAlert2
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor)
+  );
   return (
     <div className="flex flex-col p-4 space-y-4">
       <h1 className="text-3xl font-bold text-center">Task Manager Dashboard</h1>
       <button className="btn btn-primary my-4" onClick={createTask}>
         Create Task
       </button>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex flex-col md:flex-row gap-4">
           {Object.keys(columns).map((category) => (
             <DroppableColumn key={category} id={category}>

@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Swal from "sweetalert2";
 import axios from "axios";
 
 const TaskItem = ({ task, fetchTasks }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: task._id,
-    });
+  const [isMobile, setIsMobile] = useState(false);
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: task._id,
+  });
+
+  // Detect mobile devices
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(pointer: coarse)").matches);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const stopPropagation = (e) => {
     e.stopPropagation();
@@ -17,7 +27,6 @@ const TaskItem = ({ task, fetchTasks }) => {
 
   const editTask = async (task) => {
     try {
-      console.log(task);
       const { value: formValues } = await Swal.fire({
         title: "Edit Task",
         html: `
@@ -39,10 +48,9 @@ const TaskItem = ({ task, fetchTasks }) => {
           formValues
         );
         Swal.fire("Success", "Task updated", "success");
-        // Trigger parent refresh
+        fetchTasks();
       }
     } catch (error) {
-      console.error("Error updating task:", error);
       Swal.fire("Error", "Failed to update task", "error");
     }
   };
@@ -62,10 +70,9 @@ const TaskItem = ({ task, fetchTasks }) => {
           `https://task-manager-backend-1-vyq6.onrender.com/tasks/${id}`
         );
         Swal.fire("Deleted!", "Your task has been deleted.", "success");
-        fetchTasks(); // Refresh tasks after deletion
+        fetchTasks();
       }
     } catch (error) {
-      console.error("Error deleting task:", error);
       Swal.fire("Error", "Failed to delete task", "error");
     }
   };
@@ -80,54 +87,67 @@ const TaskItem = ({ task, fetchTasks }) => {
     borderRadius: "12px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     gap: "16px",
     boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-    cursor: "grab",
+    cursor: isMobile ? "default" : "grab",
+    position: "relative",
+    touchAction: "none",
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="hover:shadow-md transition-all"
-      {...attributes}
-      {...listeners}
+      {...(!isMobile && attributes)}
+      {...(!isMobile && listeners)}
     >
-      {/* Drag Handle */}
-      {/* <div
-        className="drag-handle text-gray-400 hover:text-gray-600 transition-colors"
-        style={{ padding: "8px", userSelect: "none" }}
+      {/* Drag Handle - Visible on mobile only */}
+      <div
+        className="drag-handle"
+        style={{
+          position: "absolute",
+          top: "8px",
+          left: "8px",
+          color:"blue",
+          cursor: "grab",
+          touchAction: "none",
+          zIndex: 1,
+          display: isMobile ? "block" : "none",
+        }}
+        {...(isMobile && attributes)}
+        {...(isMobile && listeners)}
         onClick={stopPropagation}
       >
         ⠿
-      </div> */}
-
-      <div className="flex-1">
-        <h3 className="font-semibold text-gray-800 text-lg">{task.title}</h3>
-        <p className="text-sm text-gray-600 mt-1">{task.description}</p>
       </div>
 
-      <div className="flex gap-3" style={{ pointerEvents: "auto" }}>
+      <div className="flex-1" style={{ marginLeft: isMobile ? "28px" : "0" }}>
+        <h3 className="font-semibold text-gray-800 text-lg">{task.title}</h3>
+        {task.description && (
+          <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+        )}
+        <p className="text-xs text-gray-500 mt-2">
+          <span className="font-medium">Created: </span>
+          {new Date(task.timestamp).toLocaleString()}
+        </p>
+      </div>
+
+      <div className="flex gap-2" style={{ pointerEvents: "auto",marginLeft: isMobile ? "28px" : "0" }}>
         <button
-          className="btn btn-info btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200 border-0 px-4"
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
           onClick={(e) => {
             stopPropagation(e);
             editTask(task);
           }}
-          onPointerDown={stopPropagation}
-          onMouseDown={stopPropagation}
         >
           Edit
         </button>
         <button
-          className="btn btn-error btn-sm bg-red-100 text-red-600 hover:bg-red-200 border-0 px-4"
+          className="text-red-600 hover:text-red-700 text-sm font-medium"
           onClick={(e) => {
             stopPropagation(e);
             deleteTask(task._id);
           }}
-          onPointerDown={stopPropagation}
-          onMouseDown={stopPropagation}
         >
           Delete
         </button>
