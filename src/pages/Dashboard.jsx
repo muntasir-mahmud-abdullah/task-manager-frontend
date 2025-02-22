@@ -13,7 +13,7 @@ import DroppableColumn from "../components/DroppableColumn";
 import Swal from "sweetalert2";
 
 // Connect to Socket.io server
-const socket = io("http://localhost:5000");
+const socket = io("https://task-manager-backend-1-vyq6.onrender.com");
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ const Dashboard = () => {
     if (!user?.uid) return;
     try {
       const response = await axios.get(
-        `http://localhost:5000/tasks/${user.uid}`
+        `https://task-manager-backend-1-vyq6.onrender.com/tasks/${user.uid}`
       );
       const grouped = {
         "To-Do": [],
@@ -155,9 +155,12 @@ const Dashboard = () => {
 
       // Update task category in the backend
       axios
-        .put(`http://localhost:5000/tasks/${active.id}`, {
-          category: overContainer,
-        })
+        .put(
+          `https://task-manager-backend-1-vyq6.onrender.com/tasks/${active.id}`,
+          {
+            category: overContainer,
+          }
+        )
         .catch((err) => console.error("Error updating task category:", err));
     }
   };
@@ -179,12 +182,15 @@ const Dashboard = () => {
         },
       });
       if (formValues) {
-        await axios.post("http://localhost:5000/tasks", {
-          ...formValues,
-          category: "To-Do",
-          uid: user.uid,
-          order: Date.now(),
-        });
+        await axios.post(
+          "https://task-manager-backend-1-vyq6.onrender.com/tasks",
+          {
+            ...formValues,
+            category: "To-Do",
+            uid: user.uid,
+            order: Date.now(),
+          }
+        );
         Swal.fire("Success", "Task created", "success");
       }
     } catch (error) {
@@ -195,9 +201,7 @@ const Dashboard = () => {
 
   // Edit an existing task via SweetAlert2
 
-
   // Delete a task with confirmation via SweetAlert2
-
 
   return (
     <div className="flex flex-col p-4 space-y-4">

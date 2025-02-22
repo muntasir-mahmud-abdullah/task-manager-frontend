@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000"; // Backend URL
+const API_URL = "https://task-manager-backend-1-vyq6.onrender.com"; // Backend URL
 
 // Fetch all tasks for a specific user
 export const getTasks = async (uid) => {

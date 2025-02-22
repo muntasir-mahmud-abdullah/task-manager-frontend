@@ -34,7 +34,10 @@ const TaskItem = ({ task, fetchTasks }) => {
       });
 
       if (formValues) {
-        await axios.put(`http://localhost:5000/tasks/${task._id}`, formValues);
+        await axios.put(
+          `https://task-manager-backend-1-vyq6.onrender.com/tasks/${task._id}`,
+          formValues
+        );
         Swal.fire("Success", "Task updated", "success");
         // Trigger parent refresh
       }
@@ -55,7 +58,9 @@ const TaskItem = ({ task, fetchTasks }) => {
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:5000/tasks/${id}`);
+        await axios.delete(
+          `https://task-manager-backend-1-vyq6.onrender.com/tasks/${id}`
+        );
         Swal.fire("Deleted!", "Your task has been deleted.", "success");
         fetchTasks(); // Refresh tasks after deletion
       }
@@ -74,7 +79,7 @@ const TaskItem = ({ task, fetchTasks }) => {
     border: "1px solid #e2e8f0",
     borderRadius: "12px",
     display: "flex",
-    flexDirection:"column",
+    flexDirection: "column",
     alignItems: "center",
     gap: "16px",
     boxShadow: "0 2px 4px rgba(0,0,0,0.05)",

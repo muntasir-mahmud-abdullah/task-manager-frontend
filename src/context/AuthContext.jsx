@@ -23,11 +23,14 @@ export const AuthProvider = ({ children }) => {
       setUser(userInfo);
 
       // Send user details to the backend
-      await axios.post("http://localhost:5000/users", {
-        uid: userInfo.uid,
-        email: userInfo.email,
-        displayName: userInfo.displayName,
-      });
+      await axios.post(
+        "https://task-manager-backend-1-vyq6.onrender.com/users",
+        {
+          uid: userInfo.uid,
+          email: userInfo.email,
+          displayName: userInfo.displayName,
+        }
+      );
     } catch (error) {
       console.error("Google Login Error:", error);
     }
