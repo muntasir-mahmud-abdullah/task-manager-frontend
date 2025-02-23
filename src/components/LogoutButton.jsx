@@ -7,7 +7,7 @@ const LogoutButton = () => {
     user && (
       <div className="flex items-center gap-4">
         <p className="text-lg">{user.displayName}</p>
-        <button className="btn btn-error" onClick={logout}>
+        <button className="btn btn-error btn-outline" onClick={logout}>
           Logout
         </button>
       </div>

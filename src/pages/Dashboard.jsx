@@ -217,7 +217,7 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row gap-4">
           {Object.keys(columns).map((category) => (
             <DroppableColumn key={category} id={category}>
-              <h2 className="text-xl text-green-400 font-bold mb-2">
+              <h2 className="text-xl text-[#332BD7] font-bold mb-2">
                 {category}
               </h2>
               <SortableContext
