@@ -47,7 +47,7 @@ const TaskItem = ({ task, fetchTasks }) => {
           `https://task-manager-backend-1-vyq6.onrender.com/tasks/${task._id}`,
           formValues
         );
-        Swal.fire("Success", "Task updated", "success");
+        // Swal.fire("Success", "Task updated", "success");
         fetchTasks();
       }
     } catch (error) {
