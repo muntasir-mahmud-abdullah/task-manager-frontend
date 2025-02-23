@@ -101,14 +101,13 @@ const TaskItem = ({ task, fetchTasks }) => {
       {...(!isMobile && attributes)}
       {...(!isMobile && listeners)}
     >
-      {/* Drag Handle - Visible on mobile only */}
+      {/* Drag Handle */}
       <div
         className="drag-handle"
         style={{
           position: "absolute",
           top: "8px",
           left: "8px",
-          color:"blue",
           cursor: "grab",
           touchAction: "none",
           zIndex: 1,
@@ -132,21 +131,37 @@ const TaskItem = ({ task, fetchTasks }) => {
         </p>
       </div>
 
-      <div className="flex gap-2" style={{ pointerEvents: "auto",marginLeft: isMobile ? "28px" : "0" }}>
+      {/* Updated buttons container with proper event handling */}
+      <div 
+        className="flex gap-2"
+        style={{ 
+          pointerEvents: "auto",
+          position: "relative",
+          zIndex: 2
+        }}
+      >
         <button
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1.5 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors"
           onClick={(e) => {
-            stopPropagation(e);
+            e.stopPropagation();
             editTask(task);
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
           }}
         >
           Edit
         </button>
         <button
-          className="text-red-600 hover:text-red-700 text-sm font-medium"
+          className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1.5 rounded-md bg-red-50 hover:bg-red-100 transition-colors"
           onClick={(e) => {
-            stopPropagation(e);
+            e.stopPropagation();
             deleteTask(task._id);
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
           }}
         >
           Delete
